@@ -15,13 +15,22 @@ interface User{
 const users:User[] =[]
 
 function checkUser(token:string):string | null{
-     const decoded=jwt.verify(token,JWT_SECRET as string)
-
-    if(!decoded || !(decoded as JwtPayload).userId){
+    if (!token || token.trim() === '') {
         return null;
     }
     
-    return (decoded as JwtPayload).userId;
+    try {
+        const decoded=jwt.verify(token,JWT_SECRET as string)
+
+        if(!decoded || !(decoded as JwtPayload).userId){
+            return null;
+        }
+        
+        return (decoded as JwtPayload).userId;
+    } catch (error) {
+        console.error('JWT verification failed:', error);
+        return null;
+    }
 }
 
 wss.on('connection',function connection(ws,request){
@@ -33,7 +42,8 @@ wss.on('connection',function connection(ws,request){
     const token=queryParams.get('token') || "";
     const userId=checkUser(token);
     if(userId==null){
-        ws.close();
+        console.log('WebSocket connection rejected: Invalid or missing JWT token');
+        ws.close(1008, 'Authentication failed: Invalid or missing JWT token');
         return;
     }
     users.push({
@@ -73,6 +83,7 @@ wss.on('connection',function connection(ws,request){
         if(parsedData.type=="chat"){
             const roomId=parsedData.roomId;
             const message=parsedData.message;
+            const userName=parsedData.userName || "Anonymous";
 
             await prisma.chat.create({
                 data:{
@@ -87,13 +98,12 @@ wss.on('connection',function connection(ws,request){
                     user.ws.send(JSON.stringify({
                         type:"chat",
                         message:message,
-                        roomId
+                        roomId,
+                        userId: userId,
+                        userName:userName
                     }))
                 }
             })
-
-           
-
         }
     })
 })

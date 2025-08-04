@@ -37,6 +37,7 @@ model Chat{
   roomId Int
   message String
   userId String
+  userName String @default("Anonymous")
   room Room @relation(fields: [roomId],references: [id])
   user User @relation(fields: [userId],references: [id])
 }

@@ -34,7 +34,8 @@ app.post('/signup',async function(req,res){
     if(user){
         res.json({
             message:"you are signed up",
-            id:user.id
+            id:user.id,
+            userName: user.name
         })
     }else{
         res.status(403).json({
@@ -63,7 +64,8 @@ app.post('/signin',async function(req,res){
     },JWT_SECRET as string)
 
     res.json({
-        token
+        token,
+        userName: findUser.name
     })
     }
     else{ 
@@ -107,18 +109,26 @@ app.get('/myrooms',mdiddleware,async function(req,res){
 
 app.get('/chats/:roomId',async function(req,res){
     //@ts-ignore
-    const roomId=req.query.roomId;
+    const roomId=parseInt(req.params.roomId);
+    console.log("Fetching chats for room:", roomId);
     const chats=await prisma.chat.findMany({
         where:{
-    //@ts-ignore
             roomId:roomId
         },
         orderBy:{
-            id:"desc"
+            id:"asc"  // Order by id, oldest first
         },
-        take:50
+        take:50,
+        include: {
+            user: {
+                select: {
+                    name: true
+                }
+            }
+        }
     })
 
+    console.log("Found chats:", chats.length);
     res.json({
         chats
     })

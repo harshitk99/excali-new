@@ -1,98 +1,132 @@
 "use client";
-
-import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Signup() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
-  const BACKEND_URL = "http://localhost:3001";
 
-  const handleSignup = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/join');
+    }
+  }, [router]);
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true);
     setError("");
+
     try {
-      const response = await axios.post(`${BACKEND_URL}/signup`, {
+      const response = await axios.post("http://localhost:3001/signup", {
         name,
         email,
         password,
       });
-      alert("Signup successful!");
-      // Optionally clear inputs or redirect user after signup here
+
+      localStorage.setItem('userName', name);
+      console.log("Signup successful:", response.data);
       router.push("/login");
-    } catch (err) {
-      setError(
-        //@ts-ignore
-        err.response?.data?.message || "Signup failed. Please try again."
-      );
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      setError(error.response?.data?.message || "Signup failed. Please try again.");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md p-8 rounded-lg shadow-lg bg-white space-y-4">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
-
-        <div>
-          <label htmlFor="name" className="block mb-1 font-medium text-gray-700">
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            placeholder="Your full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
+    <div className="container">
+      <ThemeToggle />
+      <div className="content">
+        <div className="header">
+          <h1 className="title">Create Account</h1>
+          <p className="subtitle">
+            Join our community and start chatting with others
+          </p>
         </div>
 
-        <div>
-          <label htmlFor="email" className="block mb-1 font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
+        <form onSubmit={handleSignup} className="section">
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn btn-primary"
+          >
+            <div className="btn-content">
+              {isLoading && <div className="spinner"></div>}
+              {isLoading ? "Creating Account..." : "Create Account"}
+            </div>
+          </button>
+        </form>
+
+        <div className="divider">
+          <span className="divider-text">or</span>
         </div>
 
-        <div>
-          <label htmlFor="password" className="block mb-1 font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            required
-          />
+        <div className="section">
+          <h2 className="section-title">Already have an account?</h2>
+          <p className="section-description">
+            Sign in to your existing account
+          </p>
+          <button
+            onClick={() => router.push("/login")}
+            className="btn btn-secondary"
+          >
+            Sign In
+          </button>
         </div>
 
-        <button
-          onClick={handleSignup}
-          disabled={loading}
-          className="w-full p-3 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
-        >
-          {loading ? "Signing up..." : "Sign Up"}
-        </button>
-        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+        {error && (
+          <div className="alert error">
+            <div className="alert-icon error-icon">!</div>
+            <p className="alert-message error-message">{error}</p>
+          </div>
+        )}
       </div>
     </div>
   );

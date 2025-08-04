@@ -1,5 +1,5 @@
-
-
+import "./globals.css";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 export default function RootLayout({
   children,
@@ -8,8 +8,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-family">
-        {children}
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
