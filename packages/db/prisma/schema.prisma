@@ -20,7 +20,7 @@ model User{
   name String
   photo String?
   rooms Room[]
-  chats Chat[]
+  drawings Drawing[]
 }
 
 model Room{
@@ -29,15 +29,19 @@ model Room{
   createdAt DateTime @default(now())
   adminId String
   admin User @relation(fields: [adminId],references: [id])
-  chats Chat[]
+  drawings Drawing[]
 }
 
-model Chat{
+model Drawing{
   id Int @id @default(autoincrement())
   roomId Int
-  message String
+  points Json // Store the drawing points as JSON array
+  color String @default("#000000") // Drawing color
+  strokeWidth Int @default(2) // Stroke width
+  shapeType String @default("line") // Type of shape (line, rectangle, circle, etc.)
   userId String
   userName String @default("Anonymous")
+  createdAt DateTime @default(now())
   room Room @relation(fields: [roomId],references: [id])
   user User @relation(fields: [userId],references: [id])
 }

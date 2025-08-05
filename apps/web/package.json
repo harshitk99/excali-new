@@ -14,9 +14,12 @@
     "@repo/ui": "workspace:*",
     "@tailwindcss/postcss": "^4.1.11",
     "axios": "^1.11.0",
+    "canvas": "^3.1.2",
+    "konva": "^9.3.22",
     "next": "^15.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-konva": "^19.0.7",
     "tailwind": "^4.0.0"
   },
   "devDependencies": {

@@ -1,19 +1,14 @@
-import axios from "axios";
-import ChatRoom from "../../components/ChatRoom";
-import { redirect } from "next/navigation";
+import React from 'react';
+import RoomContent from './RoomContent';
 
-async function getRoomId(slug:string){
-    const repsonse=await axios.get(`http://localhost:3001/room/${slug}`)
-    console.log(repsonse.data)
-    console.log(repsonse.data.roomId)
-    return repsonse.data.roomId
+interface PageProps {
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
-export default async function Room({params}:{params:{slug:string}}){
-    const slug=(await params).slug
-    const roomId=await getRoomId(slug)
-    
-    return(
-        <ChatRoom id={roomId}></ChatRoom>
-    )
+export default async function Room({ params }: PageProps) {
+  const { slug } = await params;
+
+  return <RoomContent slug={slug} />;
 }
