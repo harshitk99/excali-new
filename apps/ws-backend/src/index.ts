@@ -130,6 +130,20 @@ wss.on('connection',function connection(ws: WS,request){
                     drawing: drawing,
                     roomId: roomId
                 }, userId);
+                
+                // Also send back to the sender to confirm the drawing was saved
+                const sender = users.find(u => u.userId === userId);
+                if (sender) {
+                    try {
+                        sender.ws.send(JSON.stringify({
+                            type: "draw",
+                            drawing: drawing,
+                            roomId: roomId
+                        }));
+                    } catch (error) {
+                        console.error('Error sending confirmation to sender:', error);
+                    }
+                }
             }
 
             if(parsedData.type=="delete_drawing"){

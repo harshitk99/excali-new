@@ -36,6 +36,7 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentElement, setCurrentElement] = useState<DrawingElement | null>(null);
+  const [previewElement, setPreviewElement] = useState<DrawingElement | null>(null);
   const [selectedTool, setSelectedTool] = useState<'select' | 'hand' | 'line' | 'rectangle' | 'circle' | 'arrow' | 'text'>('select');
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [strokeWidth, setStrokeWidth] = useState(2);
@@ -110,6 +111,7 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
     setIsDrawing(true);
     const pos = e.target.getStage()?.getPointerPosition();
     if (pos) {
+      console.log('Mouse down at:', pos, 'with tool:', selectedTool);
       setStartPoint(pos);
       if (selectedTool === 'line' || selectedTool === 'arrow') {
         const newElement: DrawingElement = {
@@ -145,6 +147,21 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
           ...currentElement,
           points: [...currentElement.points, point.x, point.y]
         });
+      } else if ((selectedTool === 'rectangle' || selectedTool === 'circle') && startPoint) {
+        // Create preview for shapes
+        const preview: DrawingElement = {
+          id: 'preview',
+          type: selectedTool,
+          points: [],
+          color: selectedColor,
+          strokeWidth: strokeWidth,
+          x: Math.min(startPoint.x, point.x),
+          y: Math.min(startPoint.y, point.y),
+          width: Math.abs(point.x - startPoint.x),
+          height: Math.abs(point.y - startPoint.y),
+          radius: selectedTool === 'circle' ? Math.min(Math.abs(point.x - startPoint.x), Math.abs(point.y - startPoint.y)) / 2 : undefined
+        };
+        setPreviewElement(preview);
       }
     }
   };
@@ -165,27 +182,36 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
     const stage = stageRef.current;
     const point = stage?.getPointerPosition();
     
-    if (point && isDrawingTool(selectedTool) && selectedTool !== 'line' && selectedTool !== 'arrow') {
-      // Create rectangle or circle
-      const newElement: DrawingElement = {
-        id: Date.now().toString(),
-        type: selectedTool,
-        points: [],
-        color: selectedColor,
-        strokeWidth: strokeWidth,
-        x: Math.min(startPoint.x, point.x),
-        y: Math.min(startPoint.y, point.y),
-        width: Math.abs(point.x - startPoint.x),
-        height: Math.abs(point.y - startPoint.y),
-        radius: selectedTool === 'circle' ? Math.abs(point.x - startPoint.x) / 2 : undefined
-      };
-      onNewElement(newElement);
-    } else if (currentElement && currentElement.points.length > 2) {
+    if (point && (selectedTool === 'rectangle' || selectedTool === 'circle')) {
+      // Only create shape if it has a minimum size
+      const width = Math.abs(point.x - startPoint.x);
+      const height = Math.abs(point.y - startPoint.y);
+      
+      if (width > 5 && height > 5) {
+        const newElement: DrawingElement = {
+          id: Date.now().toString(),
+          type: selectedTool,
+          points: [],
+          color: selectedColor,
+          strokeWidth: strokeWidth,
+          x: Math.min(startPoint.x, point.x),
+          y: Math.min(startPoint.y, point.y),
+          width: width,
+          height: height,
+          radius: selectedTool === 'circle' ? Math.min(width, height) / 2 : undefined
+        };
+        console.log('Creating shape:', newElement);
+        onNewElement(newElement);
+      }
+    } else if (currentElement && (selectedTool === 'line' || selectedTool === 'arrow') && currentElement.points.length >= 4) {
+      // For lines and arrows, we need at least 2 points (4 coordinates)
+      console.log('Creating line/arrow:', currentElement);
       onNewElement(currentElement);
     }
     
     setIsDrawing(false);
     setCurrentElement(null);
+    setPreviewElement(null);
     setStartPoint(null);
   };
 
@@ -338,7 +364,7 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
             key={element.id}
             x={(element.x || 0) + (element.width || 0) / 2}
             y={(element.y || 0) + (element.height || 0) / 2}
-            radius={element.radius}
+            radius={Math.min((element.width || 0) / 2, (element.height || 0) / 2)}
             stroke={element.color}
             strokeWidth={element.strokeWidth}
             fill="transparent"
@@ -546,6 +572,7 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
           <Layer>
             {lines.map(renderElement)}
             {currentElement && renderElement(currentElement)}
+            {previewElement && renderElement(previewElement)}
           </Layer>
         </Stage>
 

@@ -119,7 +119,18 @@ export default function RoomContent({ slug }: { slug: string }) {
             radius: newDrawing.radius
           };
           console.log('Adding new element to canvas:', newElement);
-          setDrawingElements(prev => [...prev, newElement]);
+          
+          // Replace temporary element with real one, or add if no temp element exists
+          setDrawingElements(prev => {
+            // Remove any temporary elements (they start with 'temp-')
+            const withoutTemp = prev.filter(el => !el.id.startsWith('temp-'));
+            // Check if this drawing already exists (to avoid duplicates)
+            const exists = withoutTemp.some(el => el.id === newElement.id);
+            if (!exists) {
+              return [...withoutTemp, newElement];
+            }
+            return withoutTemp;
+          });
         } else if (data.type === 'delete_drawing') {
           // Remove drawing from state
           console.log('Deleting drawing:', data.drawingId);
@@ -153,6 +164,11 @@ export default function RoomContent({ slug }: { slug: string }) {
     
     console.log('Sending new element to WebSocket:', element);
     
+    // Add to local state immediately for instant feedback
+    const tempId = `temp-${Date.now()}`;
+    const tempElement = { ...element, id: tempId };
+    setDrawingElements(prev => [...prev, tempElement]);
+    
     // Send drawing to WebSocket server
     socket.send(JSON.stringify({
       type: 'draw',
@@ -167,9 +183,6 @@ export default function RoomContent({ slug }: { slug: string }) {
       height: element.height,
       radius: element.radius
     }));
-    
-    // Don't add to local state immediately - wait for WebSocket confirmation
-    // This prevents duplicate elements when multiple users are drawing
   };
 
   const handleClearCanvas = async () => {
