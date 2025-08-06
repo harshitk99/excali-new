@@ -38,10 +38,16 @@ model Drawing{
   points Json // Store the drawing points as JSON array
   color String @default("#000000") // Drawing color
   strokeWidth Int @default(2) // Stroke width
-  shapeType String @default("line") // Type of shape (line, rectangle, circle, etc.)
+  shapeType String @default("line") // Type of shape (line, rectangle, circle, image, etc.)
   userId String
   userName String @default("Anonymous")
   createdAt DateTime @default(now())
+  x Float? // X position for shapes and images
+  y Float? // Y position for shapes and images
+  width Float? // Width for shapes and images
+  height Float? // Height for shapes and images
+  radius Float? // Radius for circles
+  imageUrl String? // URL for generated images
   room Room @relation(fields: [roomId],references: [id])
   user User @relation(fields: [userId],references: [id])
 }

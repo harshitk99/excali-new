@@ -8,7 +8,7 @@ export type LinePoints = number[];
 
 interface DrawingElement {
   id: string;
-  type: 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand';
+  type: 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand' | 'image';
   points: LinePoints;
   color: string;
   strokeWidth: number;
@@ -17,6 +17,7 @@ interface DrawingElement {
   width?: number;
   height?: number;
   radius?: number;
+  imageUrl?: string;
 }
 
 interface CollaborativeCanvasProps {
@@ -37,7 +38,7 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentElement, setCurrentElement] = useState<DrawingElement | null>(null);
   const [previewElement, setPreviewElement] = useState<DrawingElement | null>(null);
-  const [selectedTool, setSelectedTool] = useState<'select' | 'hand' | 'line' | 'rectangle' | 'circle' | 'arrow' | 'text'>('select');
+  const [selectedTool, setSelectedTool] = useState<'select' | 'hand' | 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'image'>('select');
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [strokeWidth, setStrokeWidth] = useState(2);
   const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
@@ -62,7 +63,8 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
     { id: 'rectangle', icon: '⬜', label: 'Rectangle', hotkey: '4' },
     { id: 'circle', icon: '⭕', label: 'Circle', hotkey: '5' },
     { id: 'arrow', icon: '➡️', label: 'Arrow', hotkey: '6' },
-    { id: 'text', icon: 'A', label: 'Text', hotkey: '7' }
+    { id: 'text', icon: 'A', label: 'Text', hotkey: '7' },
+    { id: 'image', icon: '🖼️', label: 'Image', hotkey: '8' }
   ];
 
   // Handle keyboard shortcuts
@@ -249,6 +251,36 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
     stage.batchDraw();
   };
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    const pointer = stage.getPointerPosition();
+    if (!pointer) return;
+
+    const imageUrl = e.dataTransfer.getData('text/plain');
+    if (imageUrl && imageUrl.startsWith('http')) {
+      const newElement: DrawingElement = {
+        id: Date.now().toString(),
+        type: 'image',
+        points: [],
+        color: '#000000',
+        strokeWidth: 1,
+        x: pointer.x - 100, // Center the image
+        y: pointer.y - 100,
+        width: 200,
+        height: 200,
+        imageUrl: imageUrl
+      };
+      onNewElement(newElement);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
   const handleClearCanvas = () => {
     if (onClearCanvas) {
       onClearCanvas();
@@ -370,6 +402,21 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
             fill="transparent"
           />
         );
+      case 'image':
+        return element.imageUrl ? (
+          <KonvaImage
+            key={element.id}
+            x={element.x}
+            y={element.y}
+            width={element.width}
+            height={element.height}
+            image={(() => {
+              const img = new window.Image();
+              img.src = element.imageUrl!;
+              return img;
+            })()}
+          />
+        ) : null;
       default:
         return null;
     }
@@ -560,6 +607,8 @@ const CollaborativeCanvas: React.FC<CollaborativeCanvasProps> = ({
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
           onWheel={handleWheel}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
           x={stagePosition.x}
           y={stagePosition.y}
           style={{ 

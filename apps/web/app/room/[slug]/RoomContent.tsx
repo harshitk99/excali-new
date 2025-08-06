@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CollaborativeCanvas from '../../components/CollaborativeCanvas';
+import AIChat from '../../components/AIChat';
 import { useSocket } from '../../hooks/useSocket';
 
 interface DrawingElement {
   id: string;
-  type: 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand';
+  type: 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand' | 'image';
   points: number[];
   color: string;
   strokeWidth: number;
@@ -16,6 +17,7 @@ interface DrawingElement {
   width?: number;
   height?: number;
   radius?: number;
+  imageUrl?: string;
 }
 
 interface Drawing {
@@ -33,12 +35,14 @@ interface Drawing {
   width?: number;
   height?: number;
   radius?: number;
+  imageUrl?: string;
 }
 
 export default function RoomContent({ slug }: { slug: string }) {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [drawingElements, setDrawingElements] = useState<DrawingElement[]>([]);
   const [drawings, setDrawings] = useState<Drawing[]>([]);
+  const [showAIChat, setShowAIChat] = useState(true);
   const { socket, loading } = useSocket();
 
   useEffect(() => {
@@ -65,7 +69,7 @@ export default function RoomContent({ slug }: { slug: string }) {
         // Convert drawings to drawing elements format for the canvas
         const elements: DrawingElement[] = fetchedDrawings.map((drawing: Drawing) => ({
           id: drawing.id.toString(),
-          type: drawing.shapeType as 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand',
+          type: drawing.shapeType as 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand' | 'image',
           points: drawing.points,
           color: drawing.color,
           strokeWidth: drawing.strokeWidth,
@@ -73,7 +77,8 @@ export default function RoomContent({ slug }: { slug: string }) {
           y: drawing.y,
           width: drawing.width,
           height: drawing.height,
-          radius: drawing.radius
+          radius: drawing.radius,
+          imageUrl: drawing.imageUrl
         }));
         setDrawingElements(elements);
       } catch (error) {
@@ -108,7 +113,7 @@ export default function RoomContent({ slug }: { slug: string }) {
           // Convert to drawing element
           const newElement: DrawingElement = {
             id: newDrawing.id.toString(),
-            type: newDrawing.shapeType as 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand',
+            type: newDrawing.shapeType as 'line' | 'rectangle' | 'circle' | 'arrow' | 'text' | 'hand' | 'image',
             points: newDrawing.points,
             color: newDrawing.color,
             strokeWidth: newDrawing.strokeWidth,
@@ -116,7 +121,8 @@ export default function RoomContent({ slug }: { slug: string }) {
             y: newDrawing.y,
             width: newDrawing.width,
             height: newDrawing.height,
-            radius: newDrawing.radius
+            radius: newDrawing.radius,
+            imageUrl: newDrawing.imageUrl
           };
           console.log('Adding new element to canvas:', newElement);
           
@@ -181,7 +187,8 @@ export default function RoomContent({ slug }: { slug: string }) {
       y: element.y,
       width: element.width,
       height: element.height,
-      radius: element.radius
+      radius: element.radius,
+      imageUrl: element.imageUrl
     }));
   };
 
@@ -214,17 +221,54 @@ export default function RoomContent({ slug }: { slug: string }) {
 
   if (!roomId) return <div>Loading room...</div>;
 
+  const handleImageGenerated = (imageUrl: string) => {
+    // This will be handled by the AI chat component
+    console.log('Image generated:', imageUrl);
+  };
+
   return (
     <div style={{ 
       height: '100vh',
       width: '100vw',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      display: 'flex'
     }}>
-      <CollaborativeCanvas 
-        lines={drawingElements} 
-        onNewElement={handleNewElement} 
-        onClearCanvas={handleClearCanvas}
-      />
+      <div style={{ flex: 1 }}>
+        <CollaborativeCanvas 
+          lines={drawingElements} 
+          onNewElement={handleNewElement} 
+          onClearCanvas={handleClearCanvas}
+        />
+      </div>
+      {showAIChat && (
+        <AIChat 
+          roomId={roomId} 
+          onImageGenerated={handleImageGenerated}
+        />
+      )}
+      <button
+        onClick={() => setShowAIChat(!showAIChat)}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: showAIChat ? '340px' : '20px',
+          zIndex: 1000,
+          padding: '8px 12px',
+          backgroundColor: '#6366f1',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        {showAIChat ? '🤖' : '🤖'}
+        {showAIChat ? 'Hide AI' : 'Show AI'}
+      </button>
     </div>
   );
 }

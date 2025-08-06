@@ -2,6 +2,54 @@ import { WebSocketServer, WebSocket as WS } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { prismaClient } from "@repo/db/client";
+
+// AI Image Generation with OpenAI DALL-E
+// You need to set OPENAI_API_KEY in your environment variables
+async function generateAIImage(prompt: string): Promise<string> {
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    
+    if (!OPENAI_API_KEY) {
+        console.warn('OPENAI_API_KEY not found in environment variables. Using placeholder images.');
+        // Fallback to placeholder images if no API key is configured
+        const placeholderImages = [
+            'https://picsum.photos/400/400?random=1',
+            'https://picsum.photos/400/400?random=2',
+            'https://picsum.photos/400/400?random=3',
+            'https://picsum.photos/400/400?random=4',
+            'https://picsum.photos/400/400?random=5'
+        ];
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const randomIndex = Math.floor(Math.random() * placeholderImages.length);
+        return placeholderImages[randomIndex]!;
+    }
+
+    try {
+        const response = await fetch('https://api.openai.com/v1/images/generations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                n: 1,
+                size: '512x512',
+                response_format: 'url'
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.data[0].url;
+    } catch (error) {
+        console.error('Error generating AI image:', error);
+        throw new Error('Failed to generate image. Please try again.');
+    }
+}
 const prisma=prismaClient as any; // Type assertion to fix Prisma client issues
 const wss=new WebSocketServer({port:8080});
 
@@ -97,6 +145,7 @@ wss.on('connection',function connection(ws: WS,request){
                 const width = parsedData.width;
                 const height = parsedData.height;
                 const radius = parsedData.radius;
+                const imageUrl = parsedData.imageUrl;
 
                 // Save drawing to database
                 const drawing = await prisma.drawing.create({
@@ -111,7 +160,8 @@ wss.on('connection',function connection(ws: WS,request){
                         y: y,
                         width: width,
                         height: height,
-                        radius: radius
+                        radius: radius,
+                        imageUrl: imageUrl
                     },
                     include: {
                         user: {
@@ -202,6 +252,67 @@ wss.on('connection',function connection(ws: WS,request){
                     broadcastToRoom(roomId.toString(), {
                         type:"clear_room",
                         roomId: roomId
+                    });
+                }
+            }
+
+            if(parsedData.type=="ai_generate_image"){
+                const roomId=parsedData.roomId;
+                const prompt=parsedData.prompt;
+
+                // Notify all users in the room that AI is generating
+                broadcastToRoom(roomId.toString(), {
+                    type:"ai_generating",
+                    roomId: roomId
+                });
+
+                try {
+                    // For now, we'll use a placeholder image service
+                    // In a real implementation, you would integrate with OpenAI DALL-E, Stable Diffusion, etc.
+                    const imageUrl = await generateAIImage(prompt);
+                    
+                    // Save the generated image as a drawing element
+                    const drawing = await prisma.drawing.create({
+                        data:{
+                            roomId: roomId,
+                            points: [],
+                            userId: userId,
+                            color: "#000000",
+                            strokeWidth: 1,
+                            shapeType: "image",
+                            x: 100,
+                            y: 100,
+                            width: 200,
+                            height: 200,
+                            imageUrl: imageUrl
+                        },
+                        include: {
+                            user: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    });
+
+                    // Broadcast the AI response to all users in the room
+                    broadcastToRoom(roomId.toString(), {
+                        type:"ai_message",
+                        roomId: roomId,
+                        content: `Generated image for: "${prompt}"`,
+                        imageUrl: imageUrl,
+                        drawing: drawing
+                    });
+
+                } catch (error) {
+                    console.error('Error generating AI image:', error);
+                    
+                    // Broadcast error to all users in the room
+                    broadcastToRoom(roomId.toString(), {
+                        type:"ai_message",
+                        roomId: roomId,
+                        content: "Sorry, I couldn't generate an image. Please try again.",
+                        error: true
                     });
                 }
             }
