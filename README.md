@@ -1,135 +1,112 @@
-# Turborepo starter
+# SYNCART - Collaborative Drawing App
 
-This Turborepo starter is maintained by the Turborepo core team.
+SYNCART is a real-time collaborative drawing platform that allows multiple users to create, share, and collaborate on digital artwork simultaneously. Built with modern web technologies, SYNCART provides an intuitive drawing experience with powerful collaboration features.
 
-## Using this example
+## Features
 
-Run the following command:
+### 🎨 Drawing Tools
+- **Multiple Drawing Tools**: Line, rectangle, circle, arrow, and text tools
+- **Color Palette**: Extensive color selection with custom color picker
+- **Stroke Width Control**: Adjustable line thickness from 1-20px
+- **Image Support**: Drag and drop images directly onto the canvas
+- **Zoom & Pan**: Navigate large canvases with smooth zoom and pan controls
 
-```sh
-npx create-turbo@latest
+### 👥 Collaboration
+- **Real-Time Sync**: See other users' drawings appear instantly
+- **Multi-User Support**: Multiple users can draw simultaneously
+- **Room-Based System**: Create and join drawing rooms
+- **Live Cursors**: See where other users are drawing in real-time
+- **User Presence**: Know who's currently in the room
+
+### 🛠️ Advanced Features
+- **Undo/Redo**: Track and reverse drawing actions
+- **Drawing Library**: Access pre-made templates and shapes
+- **Export Options**: Save your collaborative artwork
+- **Responsive Design**: Works seamlessly on desktop and tablet
+- **Dark/Light Theme**: Toggle between themes for comfortable drawing
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Drawing Engine**: Konva.js for high-performance canvas rendering
+- **Real-Time Communication**: WebSocket for live collaboration
+- **Backend**: Node.js with Express
+- **Database**: Prisma with PostgreSQL
+- **Styling**: Tailwind CSS
+- **Build Tool**: Turborepo for monorepo management
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18 or higher
+- pnpm package manager
+- PostgreSQL database
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd draw-app
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+2. Install dependencies:
+```bash
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+3. Set up the database:
+```bash
+cd packages/db
+pnpm prisma generate
+pnpm prisma db push
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+4. Start the development servers:
+```bash
+pnpm dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+This will start:
+- Web app on http://localhost:3000
+- HTTP backend on http://localhost:3001
+- WebSocket backend on http://localhost:3002
+
+## Project Structure
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+draw-app/
+├── apps/
+│   ├── web/                 # Next.js frontend application
+│   ├── http-backend/        # REST API server
+│   └── ws-backend/          # WebSocket server for real-time features
+├── packages/
+│   ├── common/              # Shared TypeScript types
+│   ├── ui/                  # Reusable UI components
+│   ├── db/                  # Database schema and client
+│   └── backend-common/      # Shared backend utilities
 ```
 
-### Remote Caching
+## Usage
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+1. **Create an Account**: Sign up to start creating collaborative drawings
+2. **Create a Room**: Generate a new drawing room or join an existing one
+3. **Invite Collaborators**: Share the room link with others
+4. **Start Drawing**: Use the toolbar to select tools and start creating
+5. **Collaborate**: See real-time updates as others draw
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+## Contributing
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```
-cd my-turborepo
+## License
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+## Support
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+For support, email support@syncart.com or join our Discord community.

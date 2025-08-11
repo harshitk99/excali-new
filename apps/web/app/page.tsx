@@ -25,10 +25,10 @@ export default function Home() {
       <ThemeToggle />
       <div className="content" style={{ maxWidth: '800px' }}>
         <div className="header">
-          <h1 className="title">Real-Time Chat App</h1>
+          <h1 className="title">SYNCART</h1>
           <p className="subtitle">
-            Connect with others instantly through our modern, real-time chat platform. 
-            Create rooms, join conversations, and experience seamless communication.
+            Create, collaborate, and share your artwork in real-time. 
+            Join artists from around the world in our collaborative drawing platform.
           </p>
         </div>
 
@@ -36,19 +36,19 @@ export default function Home() {
           <h2 className="section-title">Features</h2>
           <div className="flex gap-4" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
             <div className="feature-card">
-              <div className="feature-icon">💬</div>
-              <h3>Real-Time Messaging</h3>
-              <p>Instant message delivery with live updates</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🔐</div>
-              <h3>Secure Authentication</h3>
-              <p>Safe and protected user accounts</p>
+              <div className="feature-icon">🎨</div>
+              <h3>Real-Time Drawing</h3>
+              <p>Draw together with instant synchronization</p>
             </div>
             <div className="feature-card">
               <div className="feature-icon">👥</div>
-              <h3>Room Management</h3>
-              <p>Create and join chat rooms easily</p>
+              <h3>Multi-User Collaboration</h3>
+              <p>See others draw live with cursor tracking</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🛠️</div>
+              <h3>Advanced Tools</h3>
+              <p>Lines, shapes, colors, and image support</p>
             </div>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function Home() {
         <div className="section">
           <h2 className="section-title">Get Started</h2>
           <p className="section-description">
-            Join thousands of users already connecting on our platform
+            Join thousands of artists already creating on SYNCART
           </p>
           <button onClick={handleGetStarted} className="btn btn-primary">
-            {isLoggedIn ? 'Go to Rooms' : 'Sign Up Now'}
+            {isLoggedIn ? 'Start Drawing' : 'Sign Up Now'}
           </button>
         </div>
 
@@ -70,7 +70,7 @@ export default function Home() {
         <div className="section">
           <h2 className="section-title">Already have an account?</h2>
           <p className="section-description">
-            Sign in to continue your conversations
+            Sign in to continue your artistic journey
           </p>
           <button onClick={() => router.push('/login')} className="btn btn-secondary">
             Sign In

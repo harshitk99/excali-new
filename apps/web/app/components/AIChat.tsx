@@ -53,7 +53,7 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
           setMessages(prev => [...prev, {
             id: 'generating',
             type: 'ai',
-            content: 'Generating image...',
+            content: 'Creating your artwork...',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             isGenerating: true
           }]);
@@ -101,6 +101,15 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
     e.dataTransfer.effectAllowed = 'copy';
   };
 
+  const quickPrompts = [
+    "A beautiful sunset landscape",
+    "Cute cartoon character",
+    "Abstract geometric design",
+    "Fantasy castle in clouds",
+    "Modern minimalist logo",
+    "Watercolor flower bouquet"
+  ];
+
   return (
     <div style={{
       width: '320px',
@@ -126,14 +135,14 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
           alignItems: 'center',
           gap: '8px'
         }}>
-          🤖 AI Image Generator
+          🎨 AI Art Assistant
         </h3>
         <p style={{
           margin: '4px 0 0 0',
           fontSize: '12px',
           color: '#6b7280'
         }}>
-          Describe an image and drag it to the canvas
+          Generate images and get drawing inspiration
         </p>
       </div>
 
@@ -154,9 +163,42 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
             padding: '20px'
           }}>
             <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎨</div>
-            <div>Ask me to generate any image!</div>
-            <div style={{ fontSize: '12px', marginTop: '4px' }}>
-              Try: "A cute cat playing with yarn"
+            <div>I can help you create amazing artwork!</div>
+            <div style={{ fontSize: '12px', marginTop: '8px', marginBottom: '16px' }}>
+              Try these quick prompts:
+            </div>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px'
+            }}>
+              {quickPrompts.map((prompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInputValue(prompt)}
+                  style={{
+                    padding: '6px 10px',
+                    backgroundColor: '#f3f4f6',
+                    border: '1px solid #e1e5e9',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    color: '#374151',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#e5e7eb';
+                    e.currentTarget.style.borderColor = '#6366f1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = '#e1e5e9';
+                  }}
+                >
+                  {prompt}
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -206,7 +248,7 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
               >
                 <img
                   src={message.imageUrl}
-                  alt="Generated image"
+                  alt="Generated artwork"
                   style={{
                     width: '100%',
                     height: 'auto',
@@ -245,7 +287,7 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite'
                 }} />
-                Generating...
+                Creating artwork...
               </div>
             )}
             
@@ -282,7 +324,7 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Describe the image you want..."
+            placeholder="Describe your artwork..."
             disabled={isGenerating}
             style={{
               flex: 1,
@@ -320,12 +362,12 @@ export default function AIChat({ roomId, onImageGenerated }: AIChatProps) {
                   borderRadius: '50%',
                   animation: 'spin 1s linear infinite'
                 }} />
-                Generating
+                Creating
               </>
             ) : (
               <>
                 🎨
-                Generate
+                Create
               </>
             )}
           </button>

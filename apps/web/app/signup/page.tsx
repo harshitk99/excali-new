@@ -52,9 +52,9 @@ export default function Signup() {
       <ThemeToggle />
       <div className="content">
         <div className="header">
-          <h1 className="title">Create Account</h1>
+          <h1 className="title">Join SYNCART</h1>
           <p className="subtitle">
-            Join our community and start chatting with others
+            Create your account and start creating collaborative artwork
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export default function Signup() {
         <div className="section">
           <h2 className="section-title">Already have an account?</h2>
           <p className="section-description">
-            Sign in to your existing account
+            Sign in to continue your artistic journey
           </p>
           <button
             onClick={() => router.push("/login")}

@@ -43,6 +43,7 @@ export default function RoomContent({ slug }: { slug: string }) {
   const [drawingElements, setDrawingElements] = useState<DrawingElement[]>([]);
   const [drawings, setDrawings] = useState<Drawing[]>([]);
   const [showAIChat, setShowAIChat] = useState(true);
+  const [roomName, setRoomName] = useState<string>('');
   const { socket, loading } = useSocket();
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function RoomContent({ slug }: { slug: string }) {
       try {
         const response = await axios.get(`http://localhost:3001/room/${slug}`);
         setRoomId(response.data.roomId);
+        setRoomName(response.data.name || slug);
       } catch (error) {
         console.error('Error fetching room ID:', error);
       }
@@ -219,7 +221,7 @@ export default function RoomContent({ slug }: { slug: string }) {
     }
   };
 
-  if (!roomId) return <div>Loading room...</div>;
+  if (!roomId) return <div>Loading drawing room...</div>;
 
   const handleImageGenerated = (imageUrl: string) => {
     // This will be handled by the AI chat component
@@ -233,7 +235,64 @@ export default function RoomContent({ slug }: { slug: string }) {
       overflow: 'hidden',
       display: 'flex'
     }}>
-      <div style={{ flex: 1 }}>
+      {/* Room Header */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1001,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #e1e5e9',
+        padding: '8px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h2 style={{ 
+            margin: 0, 
+            fontSize: '18px', 
+            color: '#374151',
+            fontWeight: '600'
+          }}>
+            🎨 {roomName}
+          </h2>
+          <span style={{ 
+            fontSize: '12px', 
+            color: '#6b7280',
+            backgroundColor: '#f3f4f6',
+            padding: '2px 8px',
+            borderRadius: '12px'
+          }}>
+            Drawing Room
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setShowAIChat(!showAIChat)}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: showAIChat ? '#6366f1' : '#f3f4f6',
+              color: showAIChat ? 'white' : '#374151',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            🤖
+            {showAIChat ? 'Hide AI Assistant' : 'Show AI Assistant'}
+          </button>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, marginTop: '60px' }}>
         <CollaborativeCanvas 
           lines={drawingElements} 
           onNewElement={handleNewElement} 
@@ -246,29 +305,6 @@ export default function RoomContent({ slug }: { slug: string }) {
           onImageGenerated={handleImageGenerated}
         />
       )}
-      <button
-        onClick={() => setShowAIChat(!showAIChat)}
-        style={{
-          position: 'fixed',
-          top: '20px',
-          right: showAIChat ? '340px' : '20px',
-          zIndex: 1000,
-          padding: '8px 12px',
-          backgroundColor: '#6366f1',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontSize: '14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          transition: 'all 0.3s ease'
-        }}
-      >
-        {showAIChat ? '🤖' : '🤖'}
-        {showAIChat ? 'Hide AI' : 'Show AI'}
-      </button>
     </div>
   );
 }

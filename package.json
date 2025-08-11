@@ -1,5 +1,5 @@
 {
-  "name": "draw-app",
+  "name": "syncart",
   "private": true,
   "scripts": {
     "build": "turbo run build",

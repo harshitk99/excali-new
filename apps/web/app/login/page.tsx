@@ -50,9 +50,9 @@ export default function Login() {
       <ThemeToggle />
       <div className="content">
         <div className="header">
-          <h1 className="title">Welcome Back</h1>
+          <h1 className="title">Welcome to SYNCART</h1>
           <p className="subtitle">
-            Sign in to your account to continue chatting with others
+            Sign in to your account to continue creating collaborative artwork
           </p>
         </div>
 
@@ -98,7 +98,7 @@ export default function Login() {
         <div className="section">
           <h2 className="section-title">Don't have an account?</h2>
           <p className="section-description">
-            Create a new account to start chatting
+            Create a new account to start creating art together
           </p>
           <button
             onClick={() => router.push("/signup")}

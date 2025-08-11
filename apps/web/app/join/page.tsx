@@ -98,16 +98,16 @@ export default function Join(){
             <ThemeToggle />
             <div className="content">
                 <div className="header">
-                    <h1 className="title">Join or Create Room</h1>
+                    <h1 className="title">Join or Create Drawing Room</h1>
                     <p className="subtitle">
-                        Start collaborating with others in real-time. Join an existing room or create your own to begin chatting.
+                        Start creating art together in real-time. Join an existing drawing room or create your own to begin collaborating.
                     </p>
                 </div>
                 
                 {/* Join Room Section */}
                 <div className="section">
-                    <h2 className="section-title">Join Room</h2>
-                    <p className="section-description">Enter a room ID to join an existing collaboration session</p>
+                    <h2 className="section-title">Join Drawing Room</h2>
+                    <p className="section-description">Enter a room ID to join an existing collaborative drawing session</p>
                     
                     <div className="input-group">
                         <input 
@@ -127,7 +127,7 @@ export default function Join(){
                     >
                         <div className="btn-content">
                             {isCheckingRoom && <div className="spinner"></div>}
-                            {isCheckingRoom ? "Checking Room..." : "Join Room"}
+                            {isCheckingRoom ? "Checking Room..." : "Join Drawing Room"}
                         </div>
                     </button>
                 </div>
@@ -138,8 +138,8 @@ export default function Join(){
                 
                 {/* Create Room Section */}
                 <div className="section">
-                    <h2 className="section-title">Create Room</h2>
-                    <p className="section-description">Create a new room and invite others to collaborate with you</p>
+                    <h2 className="section-title">Create Drawing Room</h2>
+                    <p className="section-description">Create a new drawing room and invite others to collaborate with you</p>
                     
                     <div className="input-group">
                         <input 
@@ -159,7 +159,7 @@ export default function Join(){
                     >
                         <div className="btn-content">
                             {isLoading && <div className="spinner"></div>}
-                            {isLoading ? "Creating Room..." : "Create Room"}
+                            {isLoading ? "Creating Room..." : "Create Drawing Room"}
                         </div>
                     </button>
                 </div>
